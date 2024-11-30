@@ -5,4 +5,4 @@ then
 	npm i
 fi
 
-npm start
+npm run start:dev
