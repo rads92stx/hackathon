@@ -1,5 +1,8 @@
 import { AppModule } from '@app/app.module';
 import { NestFactory } from '@nestjs/core';
+import * as path from 'path';
+
+process.env.HACKHATON_APP_ROOT = path.normalize(`${__dirname}/../`);
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

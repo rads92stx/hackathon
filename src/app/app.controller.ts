@@ -8,11 +8,9 @@ export class AppController {
 
   @Get()
   async getHello(): Promise<string> {
-    const test = await this.openAiService.completion({
-      messages: [
-        { role: 'system', content: 'Twoim zadaniem jest opowiadanie żartów na temat programistów.' }
-      ]
-    }) as OpenAI.Chat.Completions.ChatCompletion;
+    const test = (await this.openAiService.completion({
+      messages: [{ role: 'system', content: 'Twoim zadaniem jest opowiadanie żartów na temat programistów.' }]
+    })) as OpenAI.Chat.Completions.ChatCompletion;
 
     return test.choices[0].message.content;
   }
