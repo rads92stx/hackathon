@@ -1,0 +1,24 @@
+services:
+  hackathon-api:
+    container_name: hackathon-api
+    restart: 'no'
+    networks:
+      - hackathon
+    ports:
+      - 3000:3000
+    build:
+      context: ./
+      args:
+        UUID: ${UUID}
+        UGID: ${GUID}
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+    user: '${UUID}:${GUID}'
+    tty: true
+    volumes:
+      - ./:/app
+
+networks:
+  hackathon:
+    driver: bridge
+    name: hackathon

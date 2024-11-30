@@ -1,0 +1,40 @@
+services:
+  riderecord-api:
+    container_name: riderecord-api
+    restart: "no"
+    networks:
+      - riderecord
+    ports:
+      - 3000:3000
+    build:
+      context: ../api
+      args:
+        UUID: ${UUID}
+        UGID: ${GUID}
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+    user: "${UUID}:${GUID}"
+    tty: true
+    volumes:
+      - ../api:/app
+
+  riderecord-app:
+    container_name: riderecord-app
+    restart: "no"
+    depends_on:
+      - riderecord-api
+    networks:
+      - riderecord
+    ports:
+      - 3002:3000
+    build:
+      context: ../app
+    user: "${UUID}:${GUID}"
+    tty: true
+    volumes:
+      - ../app:/app
+
+networks:
+  riderecord:
+    driver: bridge
+    name: riderecord
