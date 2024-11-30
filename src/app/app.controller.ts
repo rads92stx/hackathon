@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import OpenAI from 'openai';
-import { OpenaiService } from 'src/services/openai.service';
+import { OpenaiService } from 'src/openai/services/openai.service';
 
 @Controller()
 export class AppController {

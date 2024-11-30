@@ -13,7 +13,7 @@ export class EmailApiController {
   @Get('drafts')
   async getDrafts(): Promise<string> {
     const result = await this.__qdrantService.client.getCollections();
-    console.log('List of collections:', result.collections);
+
     return this.__appService.get('QDRANT_API_KEY');
   }
 
