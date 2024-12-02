@@ -32,6 +32,8 @@ export class GoogleService {
         ...(token.refresh_token && { refresh_token: token.refresh_token })
       };
 
+      token.refresh_token && this.__client.setCredentials(value);
+
       this.__logger.log('Tokens set:', value);
 
       this.__logger.warn(JSON.stringify(value));
