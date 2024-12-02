@@ -25,7 +25,8 @@
       "@google/*": ["src/google/*"],
       "@apneai/*": ["src/openai/*"],
       "@qdrant/*": ["src/qdrant/*"],
-      "@shared/*": ["src/shared/*"]
+      "@shared/*": ["src/shared/*"],
+      "@prompts/*": ["src/prompts/*"],
     }
   }
 }

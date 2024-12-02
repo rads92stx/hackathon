@@ -7,6 +7,11 @@ export interface IPlan {
   }[];
 }
 
+export interface IExtractQuestionsResponse {
+  _thinking: string;
+  questions: string[];
+}
+
 export interface IAssistantTools {
   name: string;
   description: string;
