@@ -1,5 +1,5 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { QDrantService } from './services/qdrant.service';
+import { QDrantService } from '@qdrant/services/qdrant.service';
 
 @Module({})
 export class QDrantModule {

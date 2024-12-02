@@ -1,6 +1,6 @@
+import { AppConfigService } from '@config/services/app-config.service';
 import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { AppConfigService } from 'src/app-config/services/app-config.service';
 
 @Module({})
 export class AppConfigModule {

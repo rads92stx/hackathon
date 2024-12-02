@@ -28,6 +28,8 @@ lerna-debug.log*
 .settings/
 *.sublime-workspace
 .history
+/gcloud.json
+/gcloud-tokens.json
 
 # IDE - VSCode
 .vscode/*

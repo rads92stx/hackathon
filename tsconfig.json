@@ -18,9 +18,12 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@app/*": ["src/app/*"],
       "@api/*": ["src/api/*"],
-      "@config/*": ["src/app-config/*"]
+      "@app/*": ["src/app/*"],
+      "@config/*": ["src/config/*"],
+      "@google/*": ["src/google/*"],
+      "@apneai/*": ["src/openai/*"],
+      "@qdrant/*": ["src/qdrant/*"]
     }
   }
 }

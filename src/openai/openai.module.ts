@@ -1,5 +1,5 @@
+import { OpenaiService } from '@apneai/services/openai.service';
 import { DynamicModule, Module } from '@nestjs/common';
-import { OpenaiService } from './services/openai.service';
 
 @Module({})
 export class OpenaiModule {

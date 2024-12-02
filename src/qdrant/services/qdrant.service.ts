@@ -9,7 +9,7 @@ export class QDrantService {
     apiKey: this.__appConfigService.get('QDRANT_API_KEY')
   });
 
-  constructor(private readonly __appConfigService: AppConfigService) {}
+  constructor(private __appConfigService: AppConfigService) {}
 
   get client(): QdrantClient {
     return this.__client;
