@@ -73,8 +73,10 @@ export class EmailApiController {
   async performSearch(@Body('question') question) {
     const answer = await this.__qdrantService.performSearch(this.__COLLECTION_NAME, question, {}, 1);
 
+    if (!answer) return 'No answer';
+
     if (answer.at(0).score < this.__MIN_SCORE) return 'I have no idea :)';
 
-    return !answer ? 'No answer :(' : answer;
+    return answer;
   }
 }
