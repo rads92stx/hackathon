@@ -1,14 +1,14 @@
 import { IEmailSend } from '@api/email/interfaces/email-send.interface';
 import { AppConfigService } from '@config/services/app-config.service';
-import { Body, Controller, Get, Inject, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { QDrantService } from '@qdrant/services/qdrant.service';
 
 @Controller('api/email')
 export class EmailApiController {
-  @Inject(AppConfigService)
-  private __appService: AppConfigService;
-  @Inject(QDrantService)
-  private __qdrantService: QDrantService;
+  constructor(
+    private __appService: AppConfigService,
+    private __qdrantService: QDrantService
+  ) {}
 
   @Get('drafts')
   async getDrafts(): Promise<string> {

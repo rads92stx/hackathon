@@ -1,7 +1,7 @@
 import { AppConfigService } from '@config/services/app-config.service';
 import { IGmailMessage } from '@google/interfaces/gmail-message.interface';
 import { IGoogleToken } from '@google/interfaces/google-tokens.interface';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import { OAuth2Client } from 'google-auth-library';
@@ -18,6 +18,7 @@ export class GoogleService {
     this.__appConfigService.get('GCLOUD_REDIRECT_URL')
   );
   private __state: string;
+  private __logger = new Logger(GoogleService.name);
   private __token$ = new BehaviorSubject<IGoogleToken>(null);
   readonly token$ = this.__token$.pipe(filter((token) => !!token));
 
@@ -31,14 +32,14 @@ export class GoogleService {
         ...(token.refresh_token && { refresh_token: token.refresh_token })
       };
 
-      console.log('Tokens set:', value);
+      this.__logger.log('Tokens set:', value);
 
-      console.warn(JSON.stringify(value));
+      this.__logger.warn(JSON.stringify(value));
       fs.writeFile(this.__TOKEN_PATH, JSON.stringify(value), (err) => {
         if (err) {
-          console.error('Error saving tokens to file', err);
+          this.__logger.error('Error saving tokens to file', err);
         } else {
-          console.warn('Tokens saved to', this.__TOKEN_PATH);
+          this.__logger.warn('Tokens saved to', this.__TOKEN_PATH);
           this.__token$.next(value);
         }
       });
@@ -71,10 +72,10 @@ export class GoogleService {
   }
 
   authenticate(): void {
-    console.warn('Authenticating with Google...');
+    this.__logger.warn('Authenticating with Google...');
 
     if (this.isAuthenticated) {
-      console.warn('Already authenticated!');
+      this.__logger.warn('Already authenticated!');
       return;
     }
 
@@ -90,15 +91,15 @@ export class GoogleService {
       state: this.__state
     });
 
-    console.warn('Authorization URL:', authorizationUrl);
+    this.__logger.warn('Authorization URL:', authorizationUrl);
   }
 
   setCredentials(code: string): void {
-    console.warn('Setting credentials...');
+    this.__logger.warn('Setting credentials...');
 
     this.__client.getToken(code, (err, token: IGoogleToken) => {
       if (err) {
-        console.error('Error while trying to retrieve access token', err);
+        this.__logger.error('Error while trying to retrieve access token', err);
         return;
       }
 

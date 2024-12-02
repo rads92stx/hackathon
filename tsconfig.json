@@ -20,10 +20,12 @@
     "paths": {
       "@api/*": ["src/api/*"],
       "@app/*": ["src/app/*"],
+      "@email/*": ["src/email/*"],
       "@config/*": ["src/config/*"],
       "@google/*": ["src/google/*"],
       "@apneai/*": ["src/openai/*"],
-      "@qdrant/*": ["src/qdrant/*"]
+      "@qdrant/*": ["src/qdrant/*"],
+      "@shared/*": ["src/shared/*"]
     }
   }
 }

@@ -1,17 +1,18 @@
 import { AppConfigService } from '@config/services/app-config.service';
 import { GoogleService } from '@google/services/google.service';
-import { DynamicModule, Inject, Module, OnApplicationBootstrap } from '@nestjs/common';
+import { DynamicModule, Logger, Module, OnApplicationBootstrap } from '@nestjs/common';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob } from 'cron';
 
 @Module({})
 export class EmailModule implements OnApplicationBootstrap {
-  @Inject(GoogleService)
-  private __googleService: GoogleService;
-  @Inject(AppConfigService)
-  private __configService: AppConfigService;
-  @Inject(SchedulerRegistry)
-  private __scheduleRegistry: SchedulerRegistry;
+  private __logger = new Logger(EmailModule.name);
+
+  constructor(
+    private __googleService: GoogleService,
+    private __configService: AppConfigService,
+    private __scheduleRegistry: SchedulerRegistry
+  ) {}
 
   static forRoot(): DynamicModule {
     return {
@@ -44,7 +45,7 @@ export class EmailModule implements OnApplicationBootstrap {
 
   private async __processEmails(): Promise<void> {
     const emails = await this.__googleService.getUnreadEmails();
-    console.log('Unread emails:', emails);
+    this.__logger.log('Unread emails: ' + JSON.stringify(emails));
     // TODO: Process emails with Skynet probably in some external service, from this module or other.
   }
 }

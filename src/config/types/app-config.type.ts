@@ -7,4 +7,6 @@ export interface IAppConfig {
   GCLOUD_REDIRECT_URL: string;
   GCLOUD_SCOPES: string;
   CRON_EMAIL_CHECK: string;
+  LOGS_DIR: string;
+  LOGS_MAX_FILES: string;
 }

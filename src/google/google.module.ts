@@ -1,11 +1,10 @@
 import { GoogleAuthController } from '@google/google-auth.controller';
 import { GoogleService } from '@google/services/google.service';
-import { DynamicModule, Inject, Module, OnApplicationBootstrap } from '@nestjs/common';
+import { DynamicModule, Module, OnApplicationBootstrap } from '@nestjs/common';
 
 @Module({})
 export class GoogleModule implements OnApplicationBootstrap {
-  @Inject(GoogleService)
-  private __googleService: GoogleService;
+  constructor(private __googleService: GoogleService) {}
 
   static forRoot(): DynamicModule {
     return {

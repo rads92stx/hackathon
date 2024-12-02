@@ -1,11 +1,10 @@
 import { OpenaiService } from '@apneai/services/openai.service';
-import { Controller, Get, Inject } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import OpenAI from 'openai';
 
 @Controller()
 export class AppController {
-  @Inject(OpenaiService)
-  private __openAiService: OpenaiService;
+  constructor(private __openAiService: OpenaiService) {}
 
   @Get()
   async getHello(): Promise<string> {
