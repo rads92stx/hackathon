@@ -9,4 +9,6 @@ export interface IAppConfig {
   CRON_EMAIL_CHECK: string;
   LOGS_DIR: string;
   LOGS_MAX_FILES: string;
+  COLLECTION_NAME: string;
+  MIN_SCORE: string;
 }
