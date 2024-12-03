@@ -109,3 +109,11 @@ export interface IDoc {
 export interface Headers {
   [key: string]: string[];
 }
+
+export interface PersonalDetailsPromptResult {
+  name: string;
+  surname: string,
+  email: string;
+  phone: string;
+  appliedPosition: string;
+}

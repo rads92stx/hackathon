@@ -1,4 +1,5 @@
-export default `
+export default function prompt() {
+  return `
   Extract and explain questions and concerns from email content
 
 <prompt_objective>
@@ -170,3 +171,4 @@ The exclusive purpose of this prompt is to meticulously analyze email content to
 
 </prompt_examples>
 `;
+}

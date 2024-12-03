@@ -26,7 +26,7 @@ export class EmailApiController {
   sendResponse(@Body() dto: IEmailSend): void {}
 
   @Post('init')
-  async test(@Body() body: { text: string; header: string }[]) {
+  async initDatabaseWithData(@Body() body: { text: string; header: string }[]) {
     const points = body.map(({ header, text }) => ({
       text,
       metadata: { header }
@@ -36,7 +36,7 @@ export class EmailApiController {
   }
 
   @Post('insert-data')
-  async test2(@Body() body: { text: string; header: string }[]) {
+  async insertData(@Body() body: { text: string; header: string }[]) {
     const points = body.map(({ header, text }) => ({
       text,
       metadata: { header }
@@ -46,27 +46,27 @@ export class EmailApiController {
   }
 
   @HttpCode(200)
-  @Post('handle-email')
+  @Post('handle')
   async extract(@Body('mail') mail: string) {
     const extractedQuestions = await this.__openAiService.extractQuestions(mail);
 
     const preparedData = await Promise.all(
       extractedQuestions.map(async (question) => ({
-        example: question,
-        data: (await this.__qdrantService.performSearch(this.__COLLECTION_NAME, question, {}, 1)).at(0).payload?.text
+        question,
+        data: (await this.__qdrantService.performSearch(this.__COLLECTION_NAME, question, {}, 1)).at(0).payload?.text || ""
       }))
     );
 
-    const mapped = await Promise.all(
-      preparedData.map(async ({ data, example }) => ({
-        question: example,
-        response: await this.__openAiService.askQuestion(JSON.stringify({ data, example }))
+    const data = await Promise.all(
+      preparedData.map(async ({ data, question }) => ({
+        question,
+        response: await this.__openAiService.askQuestion(JSON.stringify({ data, question }))
       }))
     );
 
     const personalInformation = await this.__openAiService.getPersonalInfo(mail);
 
-    return await this.__openAiService.composeEmail(JSON.stringify({ personalInformation, data: mapped }));
+    return await this.__openAiService.composeEmail(JSON.stringify({ personalInformation, data }));
   }
 
   @Post('search')

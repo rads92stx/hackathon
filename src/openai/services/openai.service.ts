@@ -1,20 +1,23 @@
 import { Injectable, Logger } from '@nestjs/common';
-import askLlm from '@prompts/ask-llm';
-import composeEmail from '@prompts/compose-email';
+import askLlmPrompt from '@prompts/ask-llm';
+import composeEmailPrompt from '@prompts/compose-email';
 import extractQuestionsPrompt from '@prompts/extract-questions';
-import personalInfo from '@prompts/personal-info';
-import { IExtractQuestionsResponse } from '@shared/types';
+import personalInfoPrompt from '@prompts/personal-info';
+import { IExtractQuestionsResponse, PersonalDetailsPromptResult } from '@shared/types';
 import OpenAI from 'openai';
 import { ChatCompletionMessageParam, CreateEmbeddingResponse } from 'openai/resources';
+
+enum ChatCompletionUserType {
+  SYSTEM = 'system',
+  USER = 'user'
+}
+
+type ChatCompletionUserTypes = (typeof ChatCompletionUserType)[keyof typeof ChatCompletionUserType];
 
 @Injectable()
 export class OpenaiService {
   private __openai = new OpenAI();
   private __logger = new Logger(OpenaiService.name);
-
-  constructor() {
-    this.__openai = new OpenAI();
-  }
 
   async completion(config: {
     messages: ChatCompletionMessageParam[];
@@ -22,8 +25,9 @@ export class OpenaiService {
     stream?: boolean;
     jsonMode?: boolean;
     maxTokens?: number;
-  }): Promise<OpenAI.Chat.Completions.ChatCompletion | AsyncIterable<OpenAI.Chat.Completions.ChatCompletionChunk>> {
+  }): Promise<OpenAI.Chat.Completions.ChatCompletion> {
     const { messages, model = 'gpt-4o', stream = false, jsonMode = false, maxTokens = 8096 } = config;
+    
     try {
       const chatCompletion = await this.__openai.chat.completions.create({
         messages,
@@ -36,9 +40,9 @@ export class OpenaiService {
           })
       });
 
-      return stream
-        ? (chatCompletion as AsyncIterable<OpenAI.Chat.Completions.ChatCompletionChunk>)
-        : (chatCompletion as OpenAI.Chat.Completions.ChatCompletion);
+      this.__logger.debug({ chatCompletion, messages });
+
+      return chatCompletion as OpenAI.Chat.Completions.ChatCompletion;
     } catch (error) {
       this.__logger.error('Error in OpenAI completion:', error);
       throw error;
@@ -59,89 +63,48 @@ export class OpenaiService {
     }
   }
 
-  async extractQuestions(mail: string): Promise<string[]> {
-    const systemMessage: ChatCompletionMessageParam = {
-      role: 'system',
-      content: extractQuestionsPrompt
-    };
+  async extractQuestions(content: string): Promise<string[]> {
+    const messages = this.__composechatCompletionMessageParam({ systemPrompt: extractQuestionsPrompt(), content });
 
-    const userMessage: ChatCompletionMessageParam = {
-      role: 'user',
-      content: mail
-    };
+    const response = JSON.parse(
+      this.__getChatMessageContent(await this.completion({ messages, jsonMode: true }))
+    ) as IExtractQuestionsResponse;
 
-    const response = (
-      (await this.completion({
-        messages: [systemMessage, userMessage],
-        model: 'gpt-4o',
-        jsonMode: true
-      })) as OpenAI.Chat.Completions.ChatCompletion
-    ).choices.at(0).message;
-
-    const content = JSON.parse(response.content) as IExtractQuestionsResponse;
-    this.__logger.debug(content);
-
-    return content.questions;
+    return response.questions;
   }
 
-  async askQuestion(content: string) {
-    const systemMessage: ChatCompletionMessageParam = {
-      role: 'system',
-      content: askLlm
-    };
+  async askQuestion(content: string): Promise<string> {
+    const messages = this.__composechatCompletionMessageParam({ systemPrompt: askLlmPrompt(), content });   
 
-    const userMessage: ChatCompletionMessageParam = {
-      role: 'user',
-      content
-    };
-
-    const response = (await this.completion({
-      messages: [systemMessage, userMessage],
-      model: 'gpt-4o'
-    })) as OpenAI.Chat.Completions.ChatCompletion;
-
-    this.__logger.debug(userMessage);
-
-    return response.choices.at(0).message.content;
+    return this.__getChatMessageContent(await this.completion({ messages }));
   }
 
-  async composeEmail(content: string) {
-    const systemMessage: ChatCompletionMessageParam = {
-      role: 'system',
-      content: composeEmail
-    };
+  async composeEmail(content: string): Promise<string> {
+    const messages = this.__composechatCompletionMessageParam({ systemPrompt: composeEmailPrompt(), content });
 
-    const userMessage: ChatCompletionMessageParam = {
-      role: 'user',
-      content
-    };
-
-    const response = (await this.completion({
-      messages: [systemMessage, userMessage],
-      model: 'gpt-4o'
-    })) as OpenAI.Chat.Completions.ChatCompletion;
-
-    this.__logger.debug({ response, systemMessage, userMessage });
-
-    return response.choices.at(0).message.content;
+    return this.__getChatMessageContent(await this.completion({ messages }));
   }
 
-  async getPersonalInfo(content: string) {
-    const systemMessage: ChatCompletionMessageParam = {
-      role: 'system',
-      content: personalInfo
-    };
+  async getPersonalInfo(content: string): Promise<PersonalDetailsPromptResult> {
+    const messages = this.__composechatCompletionMessageParam({ systemPrompt: personalInfoPrompt(), content });
 
-    const userMessage: ChatCompletionMessageParam = {
-      role: 'user',
-      content
-    };
+    return JSON.parse(this.__getChatMessageContent(await this.completion({ messages, jsonMode: true })));
+  }
 
-    const response = (await this.completion({
-      messages: [systemMessage, userMessage],
-      model: 'gpt-4o'
-    })) as OpenAI.Chat.Completions.ChatCompletion;
+  private __createCompletionMessage(
+    content: string,
+    role: ChatCompletionUserTypes = ChatCompletionUserType.SYSTEM
+  ): ChatCompletionMessageParam {
+    return { role, content };
+  }
 
-    return response.choices.at(0).message.content;
+  private __composechatCompletionMessageParam({ systemPrompt, content }: { systemPrompt: string; content: string }): OpenAI.Chat.Completions.ChatCompletionMessageParam[] {
+    const systemMessage = this.__createCompletionMessage(systemPrompt);
+    const userMessage = this.__createCompletionMessage(content, ChatCompletionUserType.USER);
+    return [systemMessage, userMessage];
+  }
+
+  private __getChatMessageContent(chatMessage: OpenAI.Chat.Completions.ChatCompletion): string {
+    return chatMessage.choices.at(0)?.message.content || '';
   }
 }
