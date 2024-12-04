@@ -26,7 +26,7 @@ This project is a backend service for a hackathon event. It is built using [Nest
 2. Install dependencies:
 
    ```sh
-   pnpm install
+   npm install
    ```
 
 3. Create a `.env` file based on `.env.example` and configure your environment variables.
@@ -45,16 +45,10 @@ This project is a backend service for a hackathon event. It is built using [Nest
 
 #### Without Docker
 
-1. Build the project:
+1. Start the application:
 
    ```sh
-   pnpm run build
-   ```
-
-2. Start the application:
-
-   ```sh
-   pnpm run start
+   npm run start
    ```
 
 3. The API will be available at `http://localhost:3000`.
